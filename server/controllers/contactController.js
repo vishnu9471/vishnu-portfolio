@@ -1,4 +1,4 @@
-const contact = require("../models/contact");
+const Contact = require("../models/contact");
 const { sendContactNotification } = require("../utils/mailer");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
