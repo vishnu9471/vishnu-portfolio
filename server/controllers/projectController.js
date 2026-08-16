@@ -19,7 +19,8 @@ async function getProjects(req, res) {
 
     res.json(projects);
   } catch (error) {
-    console.error(error);
+    console.error("Get projects error:", error);
+
     res.status(500).json({
       message: "Failed to fetch projects.",
     });
@@ -40,7 +41,8 @@ async function getProjectBySlug(req, res) {
 
     res.json(project);
   } catch (error) {
-    console.error(error);
+    console.error("Get project error:", error);
+
     res.status(500).json({
       message: "Failed to fetch project.",
     });
@@ -51,5 +53,3 @@ module.exports = {
   getProjects,
   getProjectBySlug,
 };
-
-module.exports = { getProjects, getProjectBySlug };
