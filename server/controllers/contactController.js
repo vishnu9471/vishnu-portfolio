@@ -13,13 +13,14 @@ async function createContact(req, res) {
       });
     }
 
-    if (!emailRegex.test(email.trim())) {
+    // Validate email
+    if (!emailRegex.test(email)) {
       return res.status(400).json({
         message: "Please enter a valid email address.",
       });
     }
 
-    // Save to MongoDB first
+    // Save contact message to MongoDB
     const contact = await Contact.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
@@ -27,10 +28,17 @@ async function createContact(req, res) {
       message: message.trim(),
     });
 
-    // Return success immediately.
-    // Email notification runs separately.
-    res.status(201).json({
-      success: true,
+    // Send email notification
+    try {
+      await sendContactNotification(contact);
+    } catch (mailError) {
+      console.warn(
+        "Email notification was not sent:",
+        mailError.message
+      );
+    }
+
+    return res.status(201).json({
       message: "Thanks! Your message has been received.",
       id: contact._id,
     });
@@ -53,6 +61,4 @@ async function createContact(req, res) {
   }
 }
 
-module.exports = {
-  createContact,
-};
+module.exports = { createContact };

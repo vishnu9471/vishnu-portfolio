@@ -9,6 +9,8 @@ async function sendContactNotification(contact) {
     CONTACT_RECEIVER,
   } = process.env;
 
+  // If email configuration is not available,
+  // skip email notification without breaking the contact form.
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !CONTACT_RECEIVER) {
     console.warn(
       "SMTP configuration is incomplete. Contact email notification skipped."
@@ -20,13 +22,8 @@ async function sendContactNotification(contact) {
 
   const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
-    port,
-    secure: port === 465,
-
-    connectionTimeout: 5000,
-    greetingTimeout: 5000,
-    socketTimeout: 5000,
-
+    port: Number(SMTP_PORT || 587),
+    secure: Number(SMTP_PORT || 587) === 465,
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS,
