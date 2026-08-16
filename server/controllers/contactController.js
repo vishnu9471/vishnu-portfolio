@@ -7,21 +7,19 @@ async function createContact(req, res) {
   try {
     const { name, email, subject, message } = req.body;
 
-    // Validate required fields
     if (!name || !email || !subject || !message) {
       return res.status(400).json({
         message: "All fields are required.",
       });
     }
 
-    // Validate email
     if (!emailRegex.test(email.trim())) {
       return res.status(400).json({
         message: "Please enter a valid email address.",
       });
     }
 
-    // Save message to MongoDB
+    // Save to MongoDB first
     const contact = await Contact.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
@@ -29,22 +27,22 @@ async function createContact(req, res) {
       message: message.trim(),
     });
 
-    // Send notification email
-    try {
-      await sendContactNotification(contact);
-    } catch (mailError) {
-      console.error(
-        "Email notification failed:",
-        mailError.message
-      );
-    }
-
-    // Contact was successfully saved even if email fails
-    return res.status(201).json({
+    // Return success immediately.
+    // Email notification runs separately.
+    res.status(201).json({
       success: true,
       message: "Thanks! Your message has been received.",
       id: contact._id,
     });
+
+    // Send email after response
+    sendContactNotification(contact).catch((error) => {
+      console.error(
+        "Email notification failed:",
+        error.message
+      );
+    });
+
   } catch (error) {
     console.error("Contact form error:", error);
 
