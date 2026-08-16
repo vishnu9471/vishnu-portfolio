@@ -42,15 +42,6 @@ async function createContact(req, res) {
       message: "Thanks! Your message has been received.",
       id: contact._id,
     });
-
-    // Send email after response
-    sendContactNotification(contact).catch((error) => {
-      console.error(
-        "Email notification failed:",
-        error.message
-      );
-    });
-
   } catch (error) {
     console.error("Contact form error:", error);
 
@@ -61,4 +52,6 @@ async function createContact(req, res) {
   }
 }
 
-
+module.exports = {
+  createContact,
+};
