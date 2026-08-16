@@ -15,31 +15,33 @@ async function createContact(req, res) {
     }
 
     // Validate email
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(email.trim())) {
       return res.status(400).json({
         message: "Please enter a valid email address.",
       });
     }
 
-    // Save contact message to MongoDB
+    // Save message to MongoDB
     const contact = await Contact.create({
       name: name.trim(),
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       subject: subject.trim(),
       message: message.trim(),
     });
 
-    // Send email notification
+    // Send notification email
     try {
       await sendContactNotification(contact);
     } catch (mailError) {
-      console.warn(
-        "Email notification was not sent:",
+      console.error(
+        "Email notification failed:",
         mailError.message
       );
     }
 
+    // Contact was successfully saved even if email fails
     return res.status(201).json({
+      success: true,
       message: "Thanks! Your message has been received.",
       id: contact._id,
     });
@@ -47,9 +49,12 @@ async function createContact(req, res) {
     console.error("Contact form error:", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to send your message.",
     });
   }
 }
 
-module.exports = { createContact };
+module.exports = {
+  createContact,
+};
