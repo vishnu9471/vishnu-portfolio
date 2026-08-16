@@ -7,34 +7,48 @@ async function createContact(req, res) {
   try {
     const { name, email, subject, message } = req.body;
 
+    // Validate required fields
     if (!name || !email || !subject || !message) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({
+        message: "All fields are required.",
+      });
     }
 
+    // Validate email
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Please enter a valid email address." });
+      return res.status(400).json({
+        message: "Please enter a valid email address.",
+      });
     }
 
+    // Save contact message to MongoDB
     const contact = await Contact.create({
       name: name.trim(),
       email: email.trim(),
       subject: subject.trim(),
-      message: message.trim()
+      message: message.trim(),
     });
 
+    // Send email notification
     try {
       await sendContactNotification(contact);
     } catch (mailError) {
-      console.warn("Email notification was not sent:", mailError.message);
+      console.warn(
+        "Email notification was not sent:",
+        mailError.message
+      );
     }
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Thanks! Your message has been received.",
-      id: contact._id
+      id: contact._id,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to send your message." });
+    console.error("Contact form error:", error);
+
+    return res.status(500).json({
+      message: "Failed to send your message.",
+    });
   }
 }
 
